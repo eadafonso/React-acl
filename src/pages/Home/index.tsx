@@ -1,5 +1,5 @@
-import React from "react";
-import { Can } from "../../guards/GuardContext";
+import React, { useContext } from "react";
+import { Can, GuardContext } from "../../guards/GuardContext";
 import { fetchTasks, create, removeTask, updateToClosed } from "./services";
 import {
   ActionContainer,
@@ -24,6 +24,7 @@ type Task = {
 };
 
 export const Home = () => {
+  const ability = useContext(GuardContext);
   const [tasks, setTasks] = React.useState<Task[]>([]);
 
   function refresh() {
@@ -35,6 +36,13 @@ export const Home = () => {
   }, []);
 
   const onRemove = async (id: number) => {
+    const canotRemove = ability.cannot("delete", "Task");
+
+    if (canotRemove) {
+      alert("Ops, você não tem permissão para isso, contate um admin.");
+      return;
+    }
+
     await removeTask(id);
 
     setTasks((prev) => prev.filter((task) => task.id !== id));
@@ -87,11 +95,10 @@ export const Home = () => {
                     </DoneButton>
                   </Can>
                 )}
-                <Can I="delete" a="Task">
-                  <RemoveButton onClick={() => onRemove(task.id)}>
-                    Excluir
-                  </RemoveButton>
-                </Can>
+
+                <RemoveButton onClick={() => onRemove(task.id)}>
+                  Excluir
+                </RemoveButton>
               </ActionContainer>
             </ListItem>
           ))}
