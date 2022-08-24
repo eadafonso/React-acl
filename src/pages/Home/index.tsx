@@ -1,4 +1,5 @@
 import React from "react";
+import { Can } from "../../guards/GuardContext";
 import { fetchTasks, create, removeTask, updateToClosed } from "./services";
 import {
   ActionContainer,
@@ -64,10 +65,12 @@ export const Home = () => {
       <Container>
         <Title>Task Manager</Title>
 
-        <Form onSubmit={onSubmit}>
-          <Input type="text" name="title" required />
-          <NewButton type="submit">Criar nova tarefa</NewButton>
-        </Form>
+        <Can I="create" a="Task">
+          <Form onSubmit={onSubmit}>
+            <Input type="text" name="title" required />
+            <NewButton type="submit">Criar nova tarefa</NewButton>
+          </Form>
+        </Can>
 
         <Divider />
 
@@ -78,13 +81,17 @@ export const Home = () => {
               <p>{task.title}</p>
               <ActionContainer>
                 {task.status === "open" && (
-                  <DoneButton onClick={() => onDone(task.id)}>
-                    Concluir
-                  </DoneButton>
+                  <Can I="update" a="Task">
+                    <DoneButton onClick={() => onDone(task.id)}>
+                      Concluir
+                    </DoneButton>
+                  </Can>
                 )}
-                <RemoveButton onClick={() => onRemove(task.id)}>
-                  Excluir
-                </RemoveButton>
+                <Can I="delete" a="Task">
+                  <RemoveButton onClick={() => onRemove(task.id)}>
+                    Excluir
+                  </RemoveButton>
+                </Can>
               </ActionContainer>
             </ListItem>
           ))}
